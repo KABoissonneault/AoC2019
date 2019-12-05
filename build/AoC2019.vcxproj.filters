@@ -27,9 +27,15 @@
     <ClCompile Include="..\src\programs\Day1.cpp">
       <Filter>Source Files\Programs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\programs\Day2.cpp">
+      <Filter>Source Files\Programs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\stream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

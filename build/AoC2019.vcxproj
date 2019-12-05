@@ -22,9 +22,11 @@
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\program.cpp" />
     <ClCompile Include="..\src\programs\Day1.cpp" />
+    <ClCompile Include="..\src\programs\Day2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\program.h" />
+    <ClInclude Include="..\src\stream.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
