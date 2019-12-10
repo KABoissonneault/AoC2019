@@ -30,6 +30,9 @@
     <ClCompile Include="..\src\programs\Day2.cpp">
       <Filter>Source Files\Programs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\programs\day3.cpp">
+      <Filter>Source Files\Programs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\program.h">

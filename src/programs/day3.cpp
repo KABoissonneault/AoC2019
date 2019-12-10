@@ -2,6 +2,7 @@
 #include "stream.h"
 
 #include <sstream>
+#include <algorithm>
 
 namespace kab
 {
@@ -16,6 +17,11 @@ namespace kab
 		lhs.y += rhs.y;
 		
 		return lhs;
+	}
+
+	int manhattan_magnitude(vector2i const& v)
+	{
+		return std::abs(v.x) + std::abs(v.y);
 	}
 	
 	struct line2i
@@ -42,6 +48,27 @@ namespace kab
 		case direction::right: return vector2i{ magnitude, 0 };
 		}
 		throw std::runtime_error("what");
+	}
+
+	direction get_direction_type(vector2i const& v)
+	{
+		if (v.y > 0)
+		{
+			return direction::up;
+		}
+		else if (v.x < 0)
+		{
+			return direction::left;
+		}
+		else if (v.y < 0)
+		{
+			return direction::down;
+		}
+		else if (v.x > 0)
+		{
+			return direction::right;
+		}
+		throw std::runtime_error("Err...");
 	}
 
 	direction to_direction(char c)
@@ -122,20 +149,57 @@ namespace kab
 		};		
 	}
 
+	bool is_vertical(line2i const& line)
+	{
+		return line.direction.x == 0;
+	}
+
+	bool is_horizontal(line2i const& line)
+	{
+		return line.direction.y == 0;
+	}
+
+	bool parallel(line2i const& lhs, line2i const& rhs)
+	{
+		return is_vertical(lhs) == is_vertical(rhs);
+	}
+
 	bool intersect(line2i const& lhs, line2i const& rhs)
 	{
-		
+		return (
+			lhs.position.x < rhs.position.x + rhs.direction.x &&
+			lhs.position.x + lhs.direction.x > rhs.position.x &&
+			lhs.position.y < rhs.position.y + rhs.direction.y &&
+			lhs.position.y + lhs.direction.y > rhs.position.y
+		);
+	}
+
+	vector2i intersection_point(line2i const& lhs, line2i const& rhs)
+	{
+		if (is_vertical(lhs))
+		{
+			return { lhs.position.x, rhs.position.y };
+		}
+		else
+		{
+			return { rhs.position.x, lhs.position.y };
+		}
 	}
 
 	std::vector<vector2i> get_intersection_points(program_input const& input)
 	{
+		std::vector<vector2i> points;
 		for(line2i const& wire1_line : input.wire1)
 		{
 			for(line2i const& wire2_line : input.wire2)
 			{
-				
+				if (intersect(wire1_line, wire2_line))
+				{
+					points.push_back(intersection_point(wire1_line, wire2_line));
+				}
 			}
 		}
+		return points;
 	}
 	
 	class day3 : public program
@@ -145,7 +209,20 @@ namespace kab
 		{
 			program_input const input = make_program_input(i);
 
-			
+			std::vector<vector2i> const intersection_points = get_intersection_points(input);
+			vector2i const nearest_point = *std::min_element(intersection_points.begin(), intersection_points.end(), 
+				[](vector2i const& current, vector2i const& smallest) -> bool
+			{
+				return manhattan_magnitude(current) < manhattan_magnitude(smallest);
+			});
+
+			std::printf("Shortest distance: %d\n", manhattan_magnitude(nearest_point));
+		}
+
+	public:
+		day3()
+		{
+			programs.register_program(*this);
 		}
 	} p;
 }

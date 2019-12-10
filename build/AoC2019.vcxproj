@@ -23,6 +23,7 @@
     <ClCompile Include="..\src\program.cpp" />
     <ClCompile Include="..\src\programs\Day1.cpp" />
     <ClCompile Include="..\src\programs\Day2.cpp" />
+    <ClCompile Include="..\src\programs\day3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\program.h" />
