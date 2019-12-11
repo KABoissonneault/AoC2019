@@ -19,6 +19,16 @@ namespace kab
 		return lhs;
 	}
 
+	vector2i operator+(vector2i const& lhs, vector2i const& rhs)
+	{
+		return { lhs.x + rhs.x, lhs.y + rhs.y };
+	}
+
+	vector2i operator-(vector2i const& lhs, vector2i const& rhs)
+	{
+		return { lhs.x - rhs.x, lhs.y - rhs.y };
+	}
+
 	bool operator==(vector2i const& lhs, vector2i const& rhs)
 	{
 		return lhs.x == rhs.x && lhs.y == rhs.y;
@@ -218,18 +228,35 @@ namespace kab
 		}
 	}
 
-	std::vector<vector2i> get_intersection_points(program_input const& input)
+	struct intersection
 	{
-		std::vector<vector2i> points;
+		vector2i point;
+		int wire1_distance;
+		int wire2_distance;
+	};
+
+	std::vector<intersection> get_intersection_points(program_input const& input)
+	{
+		std::vector<intersection> points;
+		int travel1 = 0;
 		for(line2i const& wire1_line : input.wire1)
 		{
+			int travel2 = 0;
 			for(line2i const& wire2_line : input.wire2)
 			{
 				if (intersect(wire1_line, wire2_line) && !(wire1_line.position == vector2i{ 0, 0 } && wire2_line.position == vector2i{ 0, 0 }))
 				{
-					points.push_back(intersection_point(wire1_line, wire2_line));
+					vector2i const point = intersection_point(wire1_line, wire2_line);
+					int const wire1_distance = travel1 + manhattan_magnitude(point - wire1_line.position);
+					int const wire2_distance = travel2 + manhattan_magnitude(point - wire2_line.position);
+
+					points.push_back({ point, wire1_distance, wire2_distance });
 				}
+
+				travel2 += manhattan_magnitude(wire2_line.direction);
 			}
+
+			travel1 += manhattan_magnitude(wire1_line.direction);
 		}
 		return points;
 	}
@@ -241,14 +268,23 @@ namespace kab
 		{
 			program_input const input = make_program_input(i);
 
-			std::vector<vector2i> const intersection_points = get_intersection_points(input);
-			vector2i const nearest_point = *std::min_element(intersection_points.begin(), intersection_points.end(), 
-				[](vector2i const& current, vector2i const& smallest) -> bool
+			std::vector<intersection> const intersection_points = get_intersection_points(input);
+
+			intersection const nearest_point = *std::min_element(intersection_points.begin(), intersection_points.end(),
+				[](intersection const& current, intersection const& smallest) -> bool
 			{
-				return manhattan_magnitude(current) < manhattan_magnitude(smallest);
+				return manhattan_magnitude(current.point) < manhattan_magnitude(smallest.point);
 			});
 
-			std::printf("Shortest distance: %d\n", manhattan_magnitude(nearest_point));
+			std::printf("Shortest distance: %d\n", manhattan_magnitude(nearest_point.point));
+
+			intersection const earliest_collision = *std::min_element(intersection_points.begin(), intersection_points.end(),
+				[](intersection const& current, intersection const& smallest) -> bool
+			{
+				return current.wire1_distance + current.wire2_distance < smallest.wire1_distance + smallest.wire2_distance;
+			});
+
+			std::printf("Wire travel: %d\n", earliest_collision.wire1_distance + earliest_collision.wire2_distance);
 		}
 
 	public:
