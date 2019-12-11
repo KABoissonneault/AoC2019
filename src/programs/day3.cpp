@@ -19,6 +19,11 @@ namespace kab
 		return lhs;
 	}
 
+	bool operator==(vector2i const& lhs, vector2i const& rhs)
+	{
+		return lhs.x == rhs.x && lhs.y == rhs.y;
+	}
+
 	int manhattan_magnitude(vector2i const& v)
 	{
 		return std::abs(v.x) + std::abs(v.y);
@@ -166,12 +171,39 @@ namespace kab
 
 	bool intersect(line2i const& lhs, line2i const& rhs)
 	{
-		return (
-			lhs.position.x < rhs.position.x + rhs.direction.x &&
-			lhs.position.x + lhs.direction.x > rhs.position.x &&
-			lhs.position.y < rhs.position.y + rhs.direction.y &&
-			lhs.position.y + lhs.direction.y > rhs.position.y
-		);
+		if (is_vertical(lhs))
+		{
+			int const 
+				l_x = lhs.position.x
+				, l_min_y = std::min(lhs.position.y, lhs.position.y + lhs.direction.y)
+				, l_max_y = std::max(lhs.position.y, lhs.position.y + lhs.direction.y)
+				, r_min_x = std::min(rhs.position.x, rhs.position.x + rhs.direction.x)
+				, r_max_x = std::max(rhs.position.x, rhs.position.x + rhs.direction.x)
+				, r_y = rhs.position.y
+				;
+
+			return l_x >= r_min_x
+				&& l_x <= r_max_x
+				&& r_y >= l_min_y
+				&& r_y <= l_max_y;
+		}
+		else
+		{
+			int const
+				l_min_x = std::min(lhs.position.x, lhs.position.x + lhs.direction.x)
+				, l_max_x = std::max(lhs.position.x, lhs.position.x + lhs.direction.x)
+				, l_y = lhs.position.y
+				, r_x = rhs.position.x
+				, r_min_y = std::min(rhs.position.y, rhs.position.y + rhs.direction.y)
+				, r_max_y = std::max(rhs.position.y, rhs.position.y + rhs.direction.y)
+				;
+
+			return r_x >= l_min_x
+				&& r_x <= l_max_x
+				&& l_y >= r_min_y
+				&& l_y <= r_max_y
+				;
+		}
 	}
 
 	vector2i intersection_point(line2i const& lhs, line2i const& rhs)
@@ -193,7 +225,7 @@ namespace kab
 		{
 			for(line2i const& wire2_line : input.wire2)
 			{
-				if (intersect(wire1_line, wire2_line))
+				if (intersect(wire1_line, wire2_line) && !(wire1_line.position == vector2i{ 0, 0 } && wire2_line.position == vector2i{ 0, 0 }))
 				{
 					points.push_back(intersection_point(wire1_line, wire2_line));
 				}
